@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 interface IDelegation {
 
-    function addDelegate(bytes32 delegateType, address delegate, uint validity) external;
+    function addDelegate(address to, bytes32 delegateType, address delegate, uint validity) external;
 
     function revokeDelegate(bytes32 delegateType, address delegate) external;
 

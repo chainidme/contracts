@@ -25,7 +25,7 @@ abstract contract Attributes is IAttributes {
     /// @param value of attribute
     /// @param validForSeconds validity in seconds
     function setAttribute(address to, string memory name, string memory value, uint validForSeconds) 
-        public
+        public virtual override 
     {
         attrCount[to].add(1);
         Attribute storage new_attr = attributes[keccak256(abi.encodePacked(to, attrCount[to]))];
@@ -45,13 +45,13 @@ abstract contract Attributes is IAttributes {
     }
 
     function commitAttribute(bytes32 attr, uint validForSeconds)
-        public
+        public virtual override 
     {
         attributeCommitment[keccak256(abi.encodePacked(msg.sender, attr))] = validForSeconds;
     }
 
     function revokeAttribute(bytes32 attr)
-        external 
+        external virtual override 
     {
         attributeCommitment[keccak256(abi.encodePacked(msg.sender, attr))] = block.timestamp;
 
@@ -62,7 +62,7 @@ abstract contract Attributes is IAttributes {
 
     function verifyAttribute(address from, address to, string memory name, string memory value)
         external
-        view
+        view virtual override 
         returns(bool result)
     {
         uint validity = attributeCommitment[keccak256(abi.encodePacked(from, abi.encodePacked(to, name, value)))];
@@ -72,7 +72,7 @@ abstract contract Attributes is IAttributes {
 
     function getAttribute(address to, uint index)
         public
-        view
+        view virtual override 
         returns(Attribute memory)
     {
         return attributes[keccak256(abi.encodePacked(to, index))];
@@ -80,7 +80,7 @@ abstract contract Attributes is IAttributes {
 
     function getAllAttributes(address recipient)
     external 
-    view
+    view virtual override 
     returns(Attribute[] memory)
     {
         Attribute[] memory attrs = new Attribute[](attrCount[recipient]);

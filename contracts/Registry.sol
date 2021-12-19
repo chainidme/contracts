@@ -1,44 +1,60 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { Identity } from "./Identity.sol";
-import { IdentityInterface } from "./interfaces/IdentityInterface.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
+import {Attributes} from "./identity/Attributes.sol";
+import {Delegation} from "./identity/Delegation.sol";
+import {Staking} from "./identity/Staking.sol";
 
-contract Registry is Ownable, Pausable {
+/// @title Identity Contract
+/// @author Prasad Kumkar - <prasad@chainid.me>
+contract Registry is Attributes, Delegation, Staking, ERC721 {
+    using Counters for Counters.Counter;
+    Counters.Counter idCount;
 
-    // uint constant MAX_ID_LENGTH = 255;
+    // hash(identifier) => tokenID
+    mapping(bytes32 => uint256) public identity;
 
-    // contract identity => address mapping
-    mapping(bytes32 => address) public ownerOf;
+    uint256[] price = [
+        0 ether,        // 0 letters
+        10000 ether,    // 1 letter
+        10000 ether,    // 2 letters
+        1000 ether,     // 3 letters
+        1000 ether,     // 4 letters
+        100 ether,      // 5 letters
+        100 ether,      // 6 letters
+        10 ether,       // 7 letters
+        10 ether,       // 8 letters
+        1 ether         // 9+ letters
+    ];
 
-    uint[] registryFee = [0, 10**22, 10**21, 10**20, 10**20, 10**19, 10**19];
+    string private __baseURI;
 
-    // constructor() {}
-
-    function updateFee(uint newRegistryFee, uint index) external onlyOwner {
-        registryFee[index] = newRegistryFee;
+    constructor(string memory baseURI) ERC721("ChainID", "ID") {
+        __baseURI = baseURI;
     }
 
-    // registering new identity
-    function newIdentity(bytes memory _id) external payable {
-        uint requiredFee;
-        if(_id.length > 6) requiredFee = registryFee[_id.length];
-        else requiredFee = 10**18;
-        
-        require(msg.value >= requiredFee, "Payment: Registry Fee required");
-
-        bytes32 _identity = keccak256(_id);
-        Identity id = new Identity(_identity);
-        id.setBaseURI(string(_id));
-        id.transferOwnership(msg.sender);
-
-        ownerOf[_identity] = address(id);
+    function _baseURI() internal view virtual override returns (string memory) {
+        return __baseURI;
     }
-    
-    function getIdentity(bytes32 _user) view public returns(address){
-        return IdentityInterface(ownerOf[_user]).owner();
+
+    function registerIdentity(bytes memory _id) public payable {
+        bytes32 idHash = keccak256(_id);
+        require(identity[idHash] == 0, "Identity already registered");
+
+        uint256 fee = 0;
+        if (_id.length <= 9) fee = price[_id.length];
+        else fee = price[9];
+
+        require(msg.value >= fee, "Insufficient fee");
+
+        idCount.increment();
+        _mint(msg.sender, idCount.current());
+
+        emit NewRegistration(_id, msg.sender);
     }
+
+    event NewRegistration(bytes _id, address owner);
 }
