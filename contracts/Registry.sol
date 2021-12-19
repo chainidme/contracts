@@ -8,6 +8,8 @@ import {Attributes} from "./identity/Attributes.sol";
 import {Delegation} from "./identity/Delegation.sol";
 import {Staking} from "./identity/Staking.sol";
 
+import {IFeeProvider} from "./utils/interfaces/IFeeProvider.sol";
+
 /// @title Identity Contract
 /// @author Prasad Kumkar - <prasad@chainid.me>
 contract Registry is Attributes, Delegation, Staking, ERC721 {
@@ -17,22 +19,11 @@ contract Registry is Attributes, Delegation, Staking, ERC721 {
     // hash(identifier) => tokenID
     mapping(bytes32 => uint256) public identity;
 
-    uint256[] price = [
-        0 ether,        // 0 letters
-        10000 ether,    // 1 letter
-        10000 ether,    // 2 letters
-        1000 ether,     // 3 letters
-        1000 ether,     // 4 letters
-        100 ether,      // 5 letters
-        100 ether,      // 6 letters
-        10 ether,       // 7 letters
-        10 ether,       // 8 letters
-        1 ether         // 9+ letters
-    ];
+    address public feeProvider;
 
     string private __baseURI;
 
-    constructor(string memory baseURI) ERC721("ChainID", "ID") {
+    constructor(string memory baseURI, address _feeProvider) ERC721("ChainID", "ID") {
         __baseURI = baseURI;
     }
 
@@ -44,11 +35,7 @@ contract Registry is Attributes, Delegation, Staking, ERC721 {
         bytes32 idHash = keccak256(_id);
         require(identity[idHash] == 0, "Identity already registered");
 
-        uint256 fee = 0;
-        if (_id.length <= 9) fee = price[_id.length];
-        else fee = price[9];
-
-        require(msg.value >= fee, "Insufficient fee");
+        require(msg.value >= IFeeProvider(feeProvider).getPrice(_id.length), "Insufficient fee");
 
         idCount.increment();
         _mint(msg.sender, idCount.current());
