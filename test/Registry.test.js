@@ -11,55 +11,29 @@ var Registry = artifacts.require("/Users/prasad/projects/chainid/contracts/contr
 
 contract('Registry', (accounts) => {
     var creatorAddress = accounts[0];
-    var firstOwnerAddress = accounts[1];
-    var secondOwnerAddress = accounts[2];
-    var externalAddress = accounts[3];
+    var user1 = accounts[1];
+    var user2 = accounts[2];
+    var user3 = accounts[3];
     var unprivilegedAddress = accounts[4]
     /* create named accounts for contract roles */
 
+    let registry;
+
     before(async () => {
-        /* before tests */
+        registry = await Registry.deployed();
     })
     
     beforeEach(async () => {
         /* before each context */
     })
 
-    it('should revert if ...', () => {
-        return Registry.deployed()
-            .then(instance => {
-                return instance.publicOrExternalContractMethod(argument1, argument2, {from:externalAddress});
-            })
-            .then(result => {
-                assert.fail();
-            })
-            .catch(error => {
-                assert.notEqual(error.message, "assert.fail()", "Reason ...");
-            });
-        });
+    it('should register identity', async () => {
+        await registry.registerIdentity(0x6666, {from: user1});
+        await registry.registerIdentity(0x6667, {from: user2});
+        await registry.registerIdentity(0x6668, {from: user3});
 
-    context('testgroup - security tests - description...', () => {
-        //deploy a new contract
-        before(async () => {
-            /* before tests */
-            const newRegistry =  await Registry.new()
-        })
-        
-
-        beforeEach(async () => {
-            /* before each tests */
-        })
-
-        
-
-        it('fails on initialize ...', async () => {
-            return assertRevert(async () => {
-                await newRegistry.initialize()
-            })
-        })
-
-        it('checks if method returns true', async () => {
-            assert.isTrue(await newRegistry.thisMethodShouldReturnTrue())
-        })
-    })
+        expect((await registry.resolveID(0x6666))).to.equal(user1);
+        expect((await registry.resolveID(0x6667))).to.equal(user2);
+        expect((await registry.resolveID(0x6668))).to.equal(user3);
+    });
 });

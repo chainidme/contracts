@@ -9,12 +9,13 @@ import {Delegation} from "./identity/Delegation.sol";
 import {Staking} from "./identity/Staking.sol";
 
 import {IFeeProvider} from "./utils/interfaces/IFeeProvider.sol";
+import {IRegistry} from "./interfaces/IRegistry.sol";
 
 /// @title Identity Contract
 /// @author Prasad Kumkar - <prasad@chainid.me>
-contract Registry is Attributes, Delegation, Staking, ERC721 {
+contract Registry is IRegistry, Attributes, Delegation, Staking, ERC721 {
     using Counters for Counters.Counter;
-    Counters.Counter idCount;
+    Counters.Counter private idCount;
 
     // hash(identifier) => tokenID
     mapping(bytes32 => uint256) public identity;
@@ -25,6 +26,7 @@ contract Registry is Attributes, Delegation, Staking, ERC721 {
 
     constructor(string memory baseURI, address _feeProvider) ERC721("ChainID", "ID") {
         __baseURI = baseURI;
+        feeProvider = _feeProvider;
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
@@ -32,16 +34,22 @@ contract Registry is Attributes, Delegation, Staking, ERC721 {
     }
 
     function registerIdentity(bytes memory _id) public payable {
-        bytes32 idHash = keccak256(_id);
-        require(identity[idHash] == 0, "Identity already registered");
-
+        require(identity[keccak256(_id)] == 0, "Identity already registered");
         require(msg.value >= IFeeProvider(feeProvider).getPrice(_id.length), "Insufficient fee");
 
-        idCount.increment();
-        _mint(msg.sender, idCount.current());
+        identity[keccak256(_id)] = _mintID(msg.sender);
 
         emit NewRegistration(_id, msg.sender);
     }
 
-    event NewRegistration(bytes _id, address owner);
+    function _mintID(address _idOwner) internal returns(uint tokenID) {
+        idCount.increment();
+        uint newIdCount = idCount.current();
+        _mint(_idOwner, newIdCount);
+        return newIdCount;
+    }
+
+    function resolveID(bytes memory _id) public view returns(address) {
+        return ownerOf(identity[keccak256(_id)]);
+    }
 }

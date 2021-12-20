@@ -22,5 +22,8 @@
   "homepage": "https://github.com/chainidme/contracts#readme",
   "dependencies": {
     "@openzeppelin/contracts": "^4.4.1"
+  },
+  "devDependencies": {
+    "eth-gas-reporter": "^0.2.23"
   }
 }

@@ -9,6 +9,7 @@ contract FeeProvider is Ownable{
     uint public LAST_INDEX;
 
     constructor(uint[] memory _prices, uint _lastIndex){
+        require(_lastIndex <= _prices.length);
         prices = _prices;
         LAST_INDEX = _lastIndex;
     }
