@@ -22,4 +22,9 @@ contract FeeProvider is Ownable{
         if (index <= LAST_INDEX) return prices[index];
         else return prices[LAST_INDEX];
     }
+
+    function getSubIdPrice(uint index) external view returns(uint) {
+        if (index <= LAST_INDEX) return prices[index];
+        else return prices[LAST_INDEX];
+    }
 }

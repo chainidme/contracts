@@ -6,4 +6,6 @@ interface IFeeProvider {
     function setPrice(uint index, uint newPrice) external;
 
     function getPrice(uint index) external view returns(uint);
+
+    function getSubIdPrice(uint index) external view returns(uint);
 }
