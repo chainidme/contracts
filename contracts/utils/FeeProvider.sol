@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IFeeProvider} from "./interfaces/IFeeProvider.sol";
 
-contract FeeProvider is Ownable{
+contract FeeProvider is Ownable, IFeeProvider {
 
     uint[] public prices;
     uint public LAST_INDEX;
@@ -16,6 +17,7 @@ contract FeeProvider is Ownable{
 
     function setPrice(uint index, uint newPrice) external onlyOwner {
         prices[index] = newPrice;
+        emit PriceUpdated(index, newPrice);
     }
 
     function getPrice(uint index) external view returns(uint) {
