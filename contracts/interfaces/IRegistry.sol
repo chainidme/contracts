@@ -5,11 +5,11 @@ import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IRegistry is IERC721 {
     
-    event NewRegistration(bytes _id, address owner);
+    event NewRegistration(bytes32 _id, address owner);
 
-    function registerIdentity(bytes memory _id) external payable;
-    function registerSubIdentity(bytes memory _id, bytes memory _rootId) external;
+    function registerIdentity(bytes32 _id) external payable;
+    // function registerSubIdentity(bytes memory _id, bytes memory _rootId) external;
 
     function getIdentity(bytes32 _id) external view returns(address);
-    function getSubIdentity(bytes32 _subId, bytes32 _id) external view returns(address);
+    // function getSubIdentity(bytes32 _subId, bytes32 _id) external view returns(address);
 }

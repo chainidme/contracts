@@ -22,18 +22,14 @@ contract('Registry', (accounts) => {
     before(async () => {
         registry = await Registry.deployed();
     })
-    
-    beforeEach(async () => {
-        /* before each context */
-    })
 
     it('should register identity', async () => {
-        await registry.registerIdentity(0x6666, {from: user1});
-        await registry.registerIdentity(0x6667, {from: user2});
-        await registry.registerIdentity(0x6668, {from: user3});
+        await registry.registerIdentity("0x6666", {from: user1});
+        await registry.registerIdentity("0x6667", {from: user2});
+        await registry.registerIdentity("0x6668", {from: user3});
 
-        expect((await registry.resolveID(0x6666))).to.equal(user1);
-        expect((await registry.resolveID(0x6667))).to.equal(user2);
-        expect((await registry.resolveID(0x6668))).to.equal(user3);
+        expect((await registry.getIdentity("0x6666"))).to.equal(user1);
+        expect((await registry.getIdentity("0x6667"))).to.equal(user2);
+        expect((await registry.getIdentity("0x6668"))).to.equal(user3);
     });
 });

@@ -15,17 +15,17 @@ contract FeeProvider is Ownable, IFeeProvider {
         LAST_INDEX = _lastIndex;
     }
 
-    function setPrice(uint index, uint newPrice) external onlyOwner {
+    function setPrice(uint index, uint newPrice) external virtual override onlyOwner {
         prices[index] = newPrice;
         emit PriceUpdated(index, newPrice);
     }
 
-    function getPrice(uint index) external view returns(uint) {
+    function getPrice(uint index) external view virtual override returns(uint) {
         if (index <= LAST_INDEX) return prices[index];
         else return prices[LAST_INDEX];
     }
 
-    function getSubIdPrice(uint index) external view returns(uint) {
+    function getSubIdPrice(uint index) external view virtual override returns(uint) {
         if (index <= LAST_INDEX) return prices[index];
         else return prices[LAST_INDEX];
     }

@@ -13,7 +13,7 @@ contract IdentityValidator is Ownable {
         isInvalid[bytes1(".")] = true;
     }
 
-    function validate(bytes memory identity) public view returns(bool){
+    function validate(bytes32 identity) public view returns(bool){
         require(identity.length < MAX_LENGTH);
 
         for(uint i = 0; i < identity.length; i++){

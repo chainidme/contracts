@@ -21,7 +21,11 @@
   },
   "homepage": "https://github.com/chainidme/contracts#readme",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.4.1"
+    "@openzeppelin/contracts": "^4.4.1",
+    "@truffle/hdwallet-provider": "^2.0.0",
+    "dotenv": "^10.0.0",
+    "fs": "0.0.1-security",
+    "truffle-plugin-verify": "^0.5.20"
   },
   "devDependencies": {
     "eth-gas-reporter": "^0.2.23"
