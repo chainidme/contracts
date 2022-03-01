@@ -12,54 +12,65 @@ import {Base} from "./identity/Base.sol";
 
 import {IFeeProvider} from "./utils/interfaces/IFeeProvider.sol";
 import {IRegistry} from "./interfaces/IRegistry.sol";
-import {IdentityValidator} from "./utils/validators/IdentityValidator.sol";
+import {IValidator} from "./utils/interfaces/IValidator.sol";
 
 /// @title Identity Contract
 /// @author Prasad Kumkar - <prasad@chainid.me>
-contract Registry is IRegistry, Attributes, Delegation, Staking, ERC721, IdentityValidator {
+contract Registry is IRegistry, Attributes, Delegation, Staking, ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private idCount;
 
     address private feeProvider;
+    address private validator;
     string private baseURI;
 
     mapping(bytes32 => uint256) private subIdCount;
     mapping(bytes32 => mapping(uint256 => bytes32)) private subIdentities;
 
-    constructor(string memory __baseURI, address _feeProvider)
+    constructor(string memory __baseURI, address _feeProvider, address _validator)
         ERC721("Chain Identity", "CHAINID")
     {
         baseURI = __baseURI;
         feeProvider = _feeProvider;
+        validator = _validator;
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseURI;
     }
 
-    function registerIdentity(bytes32 _id) public payable virtual override {
-        require(!_exists(uint256(_id)), "Identity already registered");
+    function registerIdentity(bytes memory _id) external payable virtual override {
+
+        bytes32 tokenId = keccak256(_id);
+        require(!_exists(uint256(tokenId)), "Identity already registered");
         require(
             msg.value >= IFeeProvider(feeProvider).getPrice(_id.length),
             "Registry: Insufficient fee"
         );
 
-        require(validate(_id));
+        require(IValidator(validator).validateIdentity(_id));
 
-        _mint(msg.sender, uint256(_id));
+        _mint(msg.sender, uint256(tokenId));
 
-        emit NewRegistration(_id, msg.sender);
+        emit NewRegistration(tokenId, msg.sender);
     }
 
-    // function registerSubIdentity(bytes32 _id, bytes32 _subId)
-    //     external
-    //     onlyIdentityOwner(_id)
-    // {
-    //     require(!subIdentityExists(_id, _subId));
-    //     subIdCount[_id] += 1;
+    // subcompany.company.parentcompany
+    // ["subcompany", "company", "parentcompany"]
+    // check ownerOf("parentcompany")
+    function registerSubIdentity(bytes[] memory _ids, address _to)
+        external
+    {
+        require(ownerOf(uint(keccak256(_ids[_ids.length]))) == msg.sender);
 
-    //     subIdentities[_id][subIdCount] = _subId;
-    // }
+        bytes memory id = "";
+        for(uint i =0 ; i<_ids.length; i++){
+            if(i>0) bytes.concat(".");
+            bytes.concat(_ids[i]);
+        }
+
+        _mint(_to, uint(keccak256(id)));
+    }
 
     // function subIdentityExists(bytes32 _id, bytes32 _subId) public returns(bool){
     //     return getSubIdentity(_id, _subId) > 0;
