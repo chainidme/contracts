@@ -95,4 +95,14 @@ contract Registry is IRegistry, Attributes, Delegation, Staking, ERC721, Identit
     {
         return super.ownerOf(tokenId);
     }
+
+      function getPrice(bytes32 _id)
+        external
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        return IFeeProvider(feeProvider).getPrice(_id.length);
+    }
 }

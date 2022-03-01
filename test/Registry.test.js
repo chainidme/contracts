@@ -32,4 +32,9 @@ contract('Registry', (accounts) => {
         expect((await registry.getIdentity("0x6667"))).to.equal(user2);
         expect((await registry.getIdentity("0x6668"))).to.equal(user3);
     });
+
+    it('should return registerfee', async () => {
+        await registry.getPrice("0x6666", {from: user1});
+    });
+
 });
