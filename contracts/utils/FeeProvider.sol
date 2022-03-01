@@ -6,8 +6,10 @@ import {IFeeProvider} from "./interfaces/IFeeProvider.sol";
 
 contract FeeProvider is Ownable, IFeeProvider {
 
-    uint[] public prices;
+    uint[] public prices; 
     uint public LAST_INDEX;
+
+    // [0, 0, 0, 2, 1, 0.5, 0.1]
 
     constructor(uint[] memory _prices, uint _lastIndex){
         require(_lastIndex <= _prices.length);
@@ -21,11 +23,6 @@ contract FeeProvider is Ownable, IFeeProvider {
     }
 
     function getPrice(uint index) external view virtual override returns(uint) {
-        if (index <= LAST_INDEX) return prices[index];
-        else return prices[LAST_INDEX];
-    }
-
-    function getSubIdPrice(uint index) external view virtual override returns(uint) {
         if (index <= LAST_INDEX) return prices[index];
         else return prices[LAST_INDEX];
     }
