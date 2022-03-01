@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+import 'hardhat/console.sol';
 
 import {ERC721, IERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
@@ -87,15 +88,16 @@ contract Registry is IRegistry, Attributes, Delegation, Staking, ERC721 {
 
     // ========== VIEW FUNCTIONS ========== //
 
-    function getIdentity(bytes32 _id)
+    function getIdentity(bytes memory _id)
         external
         view
         virtual
         override
         returns (address)
     {
-        return ownerOf(uint256(_id));
+        return ownerOf(uint256(keccak256(_id)));
     }
+
 
     function ownerOf(uint256 tokenId)
         public
@@ -107,7 +109,7 @@ contract Registry is IRegistry, Attributes, Delegation, Staking, ERC721 {
         return super.ownerOf(tokenId);
     }
 
-      function getPrice(bytes32 _id)
+      function getPrice(bytes memory _id)
         external
         view
         virtual

@@ -10,6 +10,9 @@ interface IRegistry is IERC721 {
     function registerIdentity(bytes memory _id) external payable;
     // function registerSubIdentity(bytes memory _id, bytes memory _rootId) external;
 
-    function getIdentity(bytes32 _id) external view returns(address);
+   function getIdentity(bytes memory _id) external view returns(address);
+   
     // function getSubIdentity(bytes32 _subId, bytes32 _id) external view returns(address);
-}
+
+     function getPrice(bytes memory _id) external view returns(uint256);
+} 

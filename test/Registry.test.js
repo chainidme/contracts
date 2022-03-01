@@ -7,34 +7,96 @@
  *  #> truffle test <path/to/this/test.js>
  * 
  * */
-var Registry = artifacts.require("/Users/prasad/projects/chainid/contracts/contracts/Registry.sol");
 
-contract('Registry', (accounts) => {
-    var creatorAddress = accounts[0];
-    var user1 = accounts[1];
-    var user2 = accounts[2];
-    var user3 = accounts[3];
-    var unprivilegedAddress = accounts[4]
-    /* create named accounts for contract roles */
+ const { expect } = require("chai");
+ const { ethers, waffle} = require("hardhat");
+ const provider = waffle.provider;
+  
+ //web3 = require('web3');
+ 
+ describe("Registry", function () {
+     let registry, Registry, RegistryOb, Validator, Validatorob, FeeProvider, FeeProviderOb, owner,user1,user2, user3, user4, user5;
+     before(async () => {
+     [owner,user1,user2,user3,user4,user5_] = await ethers.getSigners();
+   
+     //deploy FeeProvider
+    let prices=  [0, 2, 1, 2, 1, 3,4];
 
-    let registry;
+    FeeProvider = await ethers.getContractFactory("FeeProvider");
+    FeeProviderOb = await FeeProvider.deploy(prices, 6);
+    await FeeProviderOb.deployed({from:owner.address});
+    console.log('FeeProvider',FeeProviderOb.address);
+    
+   // deploy validator
 
-    before(async () => {
-        registry = await Registry.deployed();
-    })
+     Validator = await ethers.getContractFactory("Validator");
+     Validatorob = await Validator.deploy();
+     await Validatorob.deployed({from:owner.address});
+     console.log('Validator',Validatorob.address);
 
-    it('should register identity', async () => {
-        await registry.registerIdentity("0x6666", {from: user1});
-        await registry.registerIdentity("0x6667", {from: user2});
-        await registry.registerIdentity("0x6668", {from: user3});
+     Registry = await ethers.getContractFactory("Registry");
+     RegistryOb = await Registry.deploy("",FeeProviderOb.address, Validatorob.address);
+     registry =  await RegistryOb.deployed({from:owner.address});
+    
+     console.log('Registry',RegistryOb.address);
+ 
+     });
 
-        expect((await registry.getIdentity("0x6666"))).to.equal(user1);
-        expect((await registry.getIdentity("0x6667"))).to.equal(user2);
-        expect((await registry.getIdentity("0x6668"))).to.equal(user3);
-    });
 
-    it('should return registerfee', async () => {
-        await registry.getPrice("0x6666", {from: user1});
-    });
+       it('should register identity1', async () => {
+         const reg =  await registry.connect(user1).registerIdentity("0x6666",{value :1});
+            expect(reg).to.emit(registry, "NewRegistration");
+        });
 
-});
+        it('should register identity', async () => {
+          await registry.connect(user2).registerIdentity("0x6667" ,{value :1});
+         expect(await registry.getIdentity("0x6667")).to.equal(user2.address);
+                   
+       });
+
+       it('Get prices', async () => {
+        await registry.connect(user3).registerIdentity("0x6668",{value :1});
+        
+        expect(await registry.connect(user3).getPrice("0x6668")).to.equal(1);
+                 
+     });
+
+
+     });
+
+
+
+
+
+
+// var Registry = artifacts.require("/Users/prasad/projects/chainid/contracts/contracts/Registry.sol");
+
+// contract('Registry', (accounts) => {
+//     var creatorAddress = accounts[0];
+//     var user1 = accounts[1];
+//     var user2 = accounts[2];
+//     var user3 = accounts[3];
+//     var unprivilegedAddress = accounts[4]
+//     /* create named accounts for contract roles */
+
+//     let registry;
+
+//     before(async () => {
+//         registry = await Registry.deployed();
+//     })
+
+//     it('should register identity', async () => {
+//         await registry.registerIdentity("0x6666", {from: user1});
+//         await registry.registerIdentity("0x6667", {from: user2});
+//         await registry.registerIdentity("0x6668", {from: user3});
+
+//         expect((await registry.getIdentity("0x6666"))).to.equal(user1);
+//         expect((await registry.getIdentity("0x6667"))).to.equal(user2);
+//         expect((await registry.getIdentity("0x6668"))).to.equal(user3);
+//     });
+
+//     it('should return registerfee', async () => {
+//         await registry.getPrice("0x6666", {from: user1});
+//     });
+
+// });

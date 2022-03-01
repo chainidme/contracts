@@ -7,59 +7,24 @@
  *  #> truffle test <path/to/this/test.js>
  * 
  * */
-var Staking = artifacts.require("/Users/prasad/projects/chainid/contracts/contracts/identity/Staking.sol");
+ const { expect } = require("chai");
+ const { ethers, waffle} = require("hardhat");
+ const provider = waffle.provider;
 
-contract('Staking', (accounts) => {
-    var creatorAddress = accounts[0];
-    var firstOwnerAddress = accounts[1];
-    var secondOwnerAddress = accounts[2];
-    var externalAddress = accounts[3];
-    var unprivilegedAddress = accounts[4]
-    /* create named accounts for contract roles */
-
-    before(async () => {
-        /* before tests */
-    })
-    
-    beforeEach(async () => {
-        /* before each context */
-    })
-
-    it('should revert if ...', () => {
-        return Staking.deployed()
-            .then(instance => {
-                return instance.publicOrExternalContractMethod(argument1, argument2, {from:externalAddress});
-            })
-            .then(result => {
-                assert.fail();
-            })
-            .catch(error => {
-                assert.notEqual(error.message, "assert.fail()", "Reason ...");
-            });
-        });
-
-    context('testgroup - security tests - description...', () => {
-        //deploy a new contract
+    describe("Staking", function () {
+        let staking, stakingob, owner,user1,user2, user3, user4, user5;
         before(async () => {
-            /* before tests */
-            const newStaking =  await Staking.new()
-        })
-        
+        [owner,user1,user2,user3,user4,user5_] = await ethers.getSigners();
+    
+   
+     
+        staking = await ethers.getContractFactory("Staking");
+        stakingob = await staking.deploy();
+        await stakingob.deployed({from:owner.address});
+        console.log('Staking',stakingob.address);
+    
+        });
+  
 
-        beforeEach(async () => {
-            /* before each tests */
-        })
-
-        
-
-        it('fails on initialize ...', async () => {
-            return assertRevert(async () => {
-                await newStaking.initialize()
-            })
-        })
-
-        it('checks if method returns true', async () => {
-            assert.isTrue(await newStaking.thisMethodShouldReturnTrue())
-        })
-    })
+  
 });

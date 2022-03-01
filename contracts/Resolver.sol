@@ -15,7 +15,7 @@ contract Resolver {
     //     return registrar.ownerOf(identity[keccak256(_id)]);
     // }
 
-    function resolveID(bytes32 _id) external view returns(address) {
+    function resolveID(bytes memory _id) external view returns(address) {
         return registrar.getIdentity(_id);
     }
 
